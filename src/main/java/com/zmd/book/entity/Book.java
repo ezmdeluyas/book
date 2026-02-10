@@ -1,7 +1,6 @@
 package com.zmd.book.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,15 +29,12 @@ public class Book {
     @Column(nullable = false)
     private Long version;
 
-    @Size(max = 255)
     @Column(nullable = false)
     private String title;
 
-    @Size(max = 255)
     @Column(nullable = false)
     private String author;
 
-    @Size(min = 10, max = 17)
     @Column(nullable = false)
     private String isbn;
 
