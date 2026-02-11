@@ -8,6 +8,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -31,6 +32,11 @@ public class BookController {
         return bookService.findAll(pageable);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<BookResponseDto> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.findById(id));
+    }
+
     @PostMapping
     public ResponseEntity<BookResponseDto> create(@Valid @RequestBody BookRequestDto bookRequestDto) {
         BookResponseDto created = bookService.create(bookRequestDto);
@@ -47,8 +53,13 @@ public class BookController {
     @PutMapping("/{id}")
     public ResponseEntity<BookResponseDto> update(@PathVariable Long id,
                                                   @Valid @RequestBody BookRequestDto bookRequestDto) {
-        BookResponseDto updated = bookService.update(id, bookRequestDto);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(bookService.update(id, bookRequestDto));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        bookService.delete(id);
     }
 
 }

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface BookService {
     Page<BookResponseDto> findAll(Pageable pageable);
+    BookResponseDto findById(Long id);
     BookResponseDto create(BookRequestDto bookRequestDto);
     BookResponseDto update(Long id, BookRequestDto bookRequestDto);
+    void delete(Long id);
 }

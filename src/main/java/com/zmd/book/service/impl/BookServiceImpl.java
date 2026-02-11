@@ -32,6 +32,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public BookResponseDto findById(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+        return bookMapper.toDto(book);
+    }
+
+    @Override
     public BookResponseDto create(BookRequestDto bookRequestDto) {
         if (bookRepository.existsByIsbn(bookRequestDto.getIsbn())) {
             throw new DuplicateIsbnException(bookRequestDto.getIsbn());
@@ -58,6 +65,13 @@ public class BookServiceImpl implements BookService {
         book.setPublishedDate(bookRequestDto.getPublishedDate());
 
         return bookMapper.toDto(book);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+        bookRepository.delete(book);
     }
 
 }
