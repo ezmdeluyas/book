@@ -33,6 +33,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResponseDto create(BookRequestDto bookRequestDto) {
+        if (bookRepository.existsByIsbn(bookRequestDto.getIsbn())) {
+            throw new DuplicateIsbnException(bookRequestDto.getIsbn());
+        }
         Book created = bookMapper.toEntity(bookRequestDto);
         Book saved = bookRepository.save(created);
         return bookMapper.toDto(saved);
@@ -43,8 +46,9 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
 
-        if (!book.getIsbn().equals(bookRequestDto.getIsbn())
-                && bookRepository.existsByIsbnAndIdNot(bookRequestDto.getIsbn(), id)) {
+        String newIsbn = bookRequestDto.getIsbn();
+        if (!book.getIsbn().equals(newIsbn)
+                && bookRepository.existsByIsbnAndIdNot(newIsbn, id)) {
             throw new DuplicateIsbnException(bookRequestDto.getIsbn());
         }
 

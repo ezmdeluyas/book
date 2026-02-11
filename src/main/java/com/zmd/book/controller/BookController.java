@@ -32,7 +32,7 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookResponseDto> toDto(@Valid @RequestBody BookRequestDto bookRequestDto) {
+    public ResponseEntity<BookResponseDto> create(@Valid @RequestBody BookRequestDto bookRequestDto) {
         BookResponseDto created = bookService.create(bookRequestDto);
 
         URI location = ServletUriComponentsBuilder
