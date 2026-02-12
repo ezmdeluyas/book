@@ -12,19 +12,19 @@ import java.time.LocalDate;
 @Setter
 public class BookRequestDto {
 
-    @NotBlank
+    @NotBlank(message = "Title is mandatory")
     @Size(max = 255)
     private String title;
 
-    @NotBlank
+    @NotBlank(message = "Author is mandatory")
     @Size(max = 255)
     private String author;
 
-    @NotBlank
-    @Size(min = 1, max = 17)
+    @NotBlank(message = "Isbn is mandatory")
+    @Size(min = 10, max = 17, message = "Isbn must be between 10 and 17 characters")
     private String isbn;
 
-    @NotNull
+    @NotNull(message = "Published Date is mandatory")
     private LocalDate publishedDate;
 
 }
