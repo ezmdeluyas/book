@@ -13,11 +13,11 @@ import java.time.LocalDate;
 public class BookRequestDto {
 
     @NotBlank(message = "Title is mandatory")
-    @Size(max = 255)
+    @Size(min = 1, max = 255)
     private String title;
 
     @NotBlank(message = "Author is mandatory")
-    @Size(max = 255)
+    @Size(min = 1, max = 255)
     private String author;
 
     @NotBlank(message = "Isbn is mandatory")

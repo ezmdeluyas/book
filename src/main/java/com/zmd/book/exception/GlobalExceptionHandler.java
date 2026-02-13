@@ -1,6 +1,8 @@
 package com.zmd.book.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -26,7 +28,8 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(err -> new ValidationError(
                         err.getField(),
-                        err.getDefaultMessage()
+                        err.getDefaultMessage(),
+                        err.getCode()
                 ))
                 .toList();
 
@@ -49,12 +52,34 @@ public class GlobalExceptionHandler {
         List<ValidationError> errors = List.of(
                 new ValidationError(
                         exception.getName(),
-                        "Must be of type " + expectedType
+                        "Value '" + exception.getValue() + "' must be of type " + expectedType,
+                        ApiProblem.TYPE_MISMATCH.name()
                 ));
         return buildProblemDetail(
                 request,
                 HttpStatus.BAD_REQUEST,
                 ApiProblem.TYPE_MISMATCH,
+                errors
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(
+            ConstraintViolationException exception,
+            HttpServletRequest request
+    ) {
+        List<ValidationError> errors = exception.getConstraintViolations()
+                .stream()
+                .map(v -> new ValidationError(
+                        extractParameterName(v.getPropertyPath().toString()),
+                        v.getMessage(),
+                        v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()))
+                .toList();
+
+        return buildProblemDetail(
+                request,
+                HttpStatus.BAD_REQUEST,
+                ApiProblem.VALIDATION_ERROR,
                 errors
         );
     }
@@ -102,14 +127,21 @@ public class GlobalExceptionHandler {
             HttpServletRequest request,
             HttpStatus status,
             ApiProblem apiProblem,
+            String detailOverride,
             List<ValidationError> errors
     ) {
+
         ProblemDetail problemDetail = ProblemDetail.forStatus(status);
         problemDetail.setTitle(apiProblem.getTitle());
-        problemDetail.setDetail(apiProblem.getDetail());
         problemDetail.setType(apiProblem.getType());
         problemDetail.setInstance(URI.create(request.getRequestURI()));
         problemDetail.setProperty("code", apiProblem.name());
+
+        if (StringUtils.isNotBlank(detailOverride)) {
+            problemDetail.setDetail(detailOverride);
+        } else {
+            problemDetail.setDetail(apiProblem.getDetail());
+        }
 
         if (errors != null &&  !errors.isEmpty()) {
             problemDetail.setProperty("errors", errors);
@@ -122,16 +154,23 @@ public class GlobalExceptionHandler {
             HttpServletRequest request,
             HttpStatus status,
             ApiProblem apiProblem,
+            List<ValidationError> errors
+    ) {
+        return buildProblemDetail(request, status, apiProblem, null, errors);
+    }
+
+    private ProblemDetail buildProblemDetail(
+            HttpServletRequest request,
+            HttpStatus status,
+            ApiProblem apiProblem,
             String message
     ) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
-        problemDetail.setTitle(apiProblem.getTitle());
-        problemDetail.setDetail(message);
-        problemDetail.setType(apiProblem.getType());
-        problemDetail.setInstance(URI.create(request.getRequestURI()));
-        problemDetail.setProperty("code", apiProblem.name());
+        return buildProblemDetail(request, status, apiProblem, message, null);
+    }
 
-        return problemDetail;
+    private String extractParameterName(String propertyPath) {
+        int lastDot = propertyPath.lastIndexOf('.');
+        return lastDot != -1 ?  propertyPath.substring(lastDot + 1) : propertyPath;
     }
 
 }
