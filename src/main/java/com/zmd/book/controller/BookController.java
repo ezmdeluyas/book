@@ -52,7 +52,7 @@ public class BookController {
                     mediaType = "application/json",
                     schema = @Schema(implementation = BookResponseDto.class)
             )),
-            @ApiResponse(responseCode = "400", description = "Invalid request parameter or validation error", content = @Content(
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters or validation error", content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = ProblemDetail.class)
             )),
@@ -69,6 +69,20 @@ public class BookController {
 
     @PostMapping
     @Operation(summary = "Create a new book", description = "Creates a new book with the provided details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Book created successfully", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = BookResponseDto.class)
+            )),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters or validation error", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )),
+            @ApiResponse(responseCode = "409", description = "A book with the same ISBN already exists", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            ))
+    })
     public ResponseEntity<BookResponseDto> create(@Valid @RequestBody BookRequestDto bookRequestDto) {
         BookResponseDto created = bookService.create(bookRequestDto);
 
