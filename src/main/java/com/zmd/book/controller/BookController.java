@@ -97,15 +97,48 @@ public class BookController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing book", description = "Updates the book identified by the given ID")
-    public ResponseEntity<BookResponseDto> update(@PathVariable @Positive Long id,
-                                                  @Valid @RequestBody BookRequestDto bookRequestDto) {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Book updated successfully", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = BookResponseDto.class)
+            )),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters or validation error", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )),
+            @ApiResponse(responseCode = "404", description = "Book not found for the given ID", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )),
+            @ApiResponse(responseCode = "409", description = "A book with the same ISBN already exists", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            ))
+    })
+    public ResponseEntity<BookResponseDto> update(
+            @PathVariable @Positive
+            @Parameter(description = "Unique identifier of the book. Must be a positive number", required = true) Long id,
+            @Valid @RequestBody BookRequestDto bookRequestDto) {
         return ResponseEntity.ok(bookService.update(id, bookRequestDto));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a book", description = "Deletes the book identified by the given ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable @Positive Long id) {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Book deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters or validation error", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )),
+            @ApiResponse(responseCode = "404", description = "Book not found for the given ID", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            ))
+    })
+    public void delete(
+            @PathVariable @Positive
+            @Parameter(description = "Unique identifier of the book. Must be a positive number", required = true) Long id) {
         bookService.delete(id);
     }
 
