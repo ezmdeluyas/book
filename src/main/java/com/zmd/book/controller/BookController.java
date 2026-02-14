@@ -38,7 +38,17 @@ public class BookController {
     }
 
     @GetMapping
-    @Operation(summary = "Retrieve all books", description = "Returns a paginated list of books. Supports pagination and sorting")
+    @Operation(summary = "Retrieve books", description = "Returns a paginated list of books. Supports pagination and sorting")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved successfully", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Page.class)
+            )),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters or validation error", content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ProblemDetail.class)
+            ))
+    })
     public Page<BookResponseDto> findAll(
             @ParameterObject
             @PageableDefault(sort = "title") Pageable pageable) {
