@@ -18,3 +18,7 @@ springdoc.api-docs.path=/api-docs
 
 app.security.admin.username=admin
 app.security.admin.password=
+
+app.jwt.secret=
+app.jwt.issuer=book-api
+app.jwt.access-token-expiration-minutes=60

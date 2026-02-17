@@ -20,7 +20,7 @@ public class SecurityConfig {
 
     private final AppSecurityProperties props;
 
-    SecurityConfig(AppSecurityProperties props) {
+    public SecurityConfig(AppSecurityProperties props) {
         this.props = props;
     }
 
@@ -29,14 +29,18 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests.requestMatchers(
+        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                .requestMatchers(
                         "/v3/api-docs/**", "/swagger-ui/**",
                         "/swagger-ui.html", "/h2-console/**",
-                        "/docs/**", "/api-docs/**")
-                .permitAll().anyRequest().authenticated());
+                        "/docs/**", "/api-docs/**", "/auth/**").permitAll()
+                .requestMatchers(
+                        "/api/**"
+                ).authenticated().anyRequest().denyAll()
+        );
 
         http.httpBasic(Customizer.withDefaults());
+        http.oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
         http.headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         return http.build();
     }
