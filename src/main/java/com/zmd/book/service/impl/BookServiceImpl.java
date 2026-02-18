@@ -40,8 +40,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResponseDto create(BookRequestDto bookRequestDto) {
-        if (bookRepository.existsByIsbn(bookRequestDto.getIsbn())) {
-            throw new DuplicateIsbnException(bookRequestDto.getIsbn());
+        if (bookRepository.existsByIsbn(bookRequestDto.isbn())) {
+            throw new DuplicateIsbnException(bookRequestDto.isbn());
         }
         Book created = bookMapper.toEntity(bookRequestDto);
         Book saved = bookRepository.save(created);
@@ -53,16 +53,16 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
 
-        String newIsbn = bookRequestDto.getIsbn();
+        String newIsbn = bookRequestDto.isbn();
         if (!book.getIsbn().equals(newIsbn)
                 && bookRepository.existsByIsbnAndIdNot(newIsbn, id)) {
-            throw new DuplicateIsbnException(bookRequestDto.getIsbn());
+            throw new DuplicateIsbnException(bookRequestDto.isbn());
         }
 
-        book.setTitle(bookRequestDto.getTitle());
-        book.setAuthor(bookRequestDto.getAuthor());
-        book.setIsbn(bookRequestDto.getIsbn());
-        book.setPublishedDate(bookRequestDto.getPublishedDate());
+        book.setTitle(bookRequestDto.title());
+        book.setAuthor(bookRequestDto.author());
+        book.setIsbn(bookRequestDto.isbn());
+        book.setPublishedDate(bookRequestDto.publishedDate());
 
         return bookMapper.toDto(book);
     }
